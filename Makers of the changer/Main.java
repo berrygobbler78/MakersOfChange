@@ -1,14 +1,22 @@
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import javax.swing.*;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+
 
 public class Main{
     static Boolean leftAnimalCorrect = false;
@@ -17,8 +25,102 @@ public class Main{
     static String leftAnimal;
     static String rightAnimal;
 
+    static Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+    static int WIDTH = (int) size.getWidth();
+    static int HEIGHT = (int) size.getHeight();
+
+    static JFrame frame = new JFrame("Z's Master Matcher");
+    
+    static ImageIcon chicken = new ImageIcon("Chicken.png");
+    static ImageIcon cow = new ImageIcon("Cow.png");
+    static ImageIcon goat = new ImageIcon("Goat.png");  
+    static ImageIcon sheep = new ImageIcon("Sheep.png");
+    static ImageIcon telephone = new ImageIcon("Telephone.png");
+
+    static JLabel labelL = new JLabel();
+    static JLabel labelR = new JLabel();
+    
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
+        KeyListener escKL = new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                //If someone click Esc key, this program will exit
+                if(evt.getKeyCode()==KeyEvent.VK_ESCAPE) {
+                        System.exit(0);
+                }
+            }
+        };
+
+        chicken = new ImageIcon(getScaledImage(chicken.getImage(), 250, 250));
+        cow = new ImageIcon(getScaledImage(cow.getImage(), 250, 250));
+        goat = new ImageIcon(getScaledImage(goat.getImage(), 250, 250));
+        sheep = new ImageIcon(getScaledImage(sheep.getImage(), 250, 250));
+        telephone = new ImageIcon(getScaledImage(telephone.getImage(), 250, 250));
+        
+        
+
+        
+        // frame.getContentPane();
+
+        JPanel panel = new JPanel();
+
+        panel.setLayout(null);
+        panel.add(labelR);
+        panel.add(labelL);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.add(panel);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frame.setVisible(true);
+        frame.addKeyListener(escKL);
+
         runGame();
+    }
+
+    public static void updateFrame(String leftAnimal, String rightAnimal) {
+        switch(leftAnimal) {
+            case "Chicken" :
+                labelL.setIcon(chicken);
+                break;
+            case "Cow" :
+                labelL.setIcon(cow);
+                break;
+            case "Goat" :
+                labelL.setIcon(goat);
+                break;
+            case "Sheep" :
+                labelL.setIcon(sheep);
+                break;
+            case "Telephone" :
+                labelL.setIcon(telephone);
+                break;
+        }
+
+        switch(rightAnimal) {
+            case "Chicken" :
+                labelR.setIcon(chicken);
+                break;
+            case "Cow" :
+                labelR.setIcon(cow);
+                break;
+            case "Goat" :
+                labelR.setIcon(goat);
+                break;
+            case "Sheep" :
+                labelR.setIcon(sheep);
+                break;
+            case "Telephone" :
+                labelR.setIcon(telephone);
+                break;
+        }
+        
+        Dimension labelSizeR = labelR.getPreferredSize();
+        labelR.setBounds((WIDTH * 3 / 4) - labelSizeR.width / 2, HEIGHT / 2 - labelSizeR.height / 2, labelSizeR.width, labelSizeR.height);
+
+        Dimension labelSizeL = labelL.getPreferredSize();
+        labelL.setBounds((WIDTH / 4) - labelSizeL.width / 2, HEIGHT / 2 - labelSizeL.height / 2, labelSizeL.width, labelSizeR.height);
+
+        SwingUtilities.updateComponentTreeUI(frame);
     }
 
     public static void runGame() throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
@@ -33,6 +135,8 @@ public class Main{
         while(leftAnimal.equals(rightAnimal)) {
             rightAnimal = randomObjectGenerator();
         }
+
+        updateFrame(leftAnimal, rightAnimal);
         
         // Picks a right and a wrong answer
         int chooseRightAndWrong = ThreadLocalRandom.current().nextInt(1, 2 + 1);
@@ -126,5 +230,15 @@ public class Main{
         clip.start();
         Thread.sleep(durationInLongSeconds);
     }
-}
 
+    private static Image getScaledImage(Image srcImg, int w, int h){
+        BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = resizedImg.createGraphics();
+
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.drawImage(srcImg, 0, 0, w, h, null);
+        g2.dispose();
+
+        return resizedImg;
+    }  
+}
